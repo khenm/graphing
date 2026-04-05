@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Knowledge Graph</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background: #f8f9fa;
+    }
+
+    #graph {
+      width: 100vw;
+      height: 100vh;
+    }
+
+    #refreshBtn {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 10;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-family: sans-serif;
+      cursor: pointer;
+      border-radius: 8px;
+      border: 1px solid #94a3b8;
+      background: #e2e8f0;
+      color: #374151;
+      transition: background 0.15s ease;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+
+    #refreshBtn:hover { background: #cbd5e1; }
+
+    #tooltip {
+      position: fixed;
+      pointer-events: none;
+      background: rgba(255,255,255,0.92);
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-family: sans-serif;
+      color: #374151;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+      display: none;
+      max-width: 200px;
+    }
+  </style>
+</head>
+<body>
+  <div id="graph"></div>
+  <button id="refreshBtn">Refresh Graph</button>
+  <div id="tooltip"></div>
+
+  <script src="theme.js"></script>
+  <script src="https://unpkg.com/force-graph@1.49.0/dist/force-graph.min.js"></script>
+  <script>
+    const tooltip = document.getElementById('tooltip');
+    let graph = null;
+    let hoveredNode = null;
+
+    function nodeColor(node) {
+      const tag = node.group || '';
+      return GraphTheme.nodes.tagColors[tag] || GraphTheme.nodes.defaultColor;
+    }
+
+    function initGraph(data) {
+      if (graph) graph._destructor();
+
+      graph = ForceGraph()(document.getElementById('graph'))
+        .backgroundColor(GraphTheme.canvas.background)
+        .graphData(data)
+
+        // Links
+        .linkColor(() => GraphTheme.links.color)
+        .linkWidth(GraphTheme.links.width)
+        .linkDirectionalArrowLength(GraphTheme.links.arrowLength)
+        .linkDirectionalArrowRelPos(1)
+        .linkDirectionalArrowColor(() => GraphTheme.links.color)
+
+        // Node canvas drawing
+        .nodeCanvasObject((node, ctx, globalScale) => {
+          const r = GraphTheme.nodes.radius;
+          const isHovered = node === hoveredNode;
+
+          // Node circle
+          ctx.beginPath();
+          ctx.arc(node.x, node.y, r, 0, 2 * Math.PI);
+          ctx.fillStyle = nodeColor(node);
+          ctx.fill();
+
+          if (isHovered) {
+            ctx.strokeStyle = GraphTheme.nodes.hoverOutline;
+            ctx.lineWidth = GraphTheme.nodes.hoverOutlineWidth / globalScale;
+            ctx.stroke();
+          }
+
+          // Label
+          const label = node.name || node.id;
+          const fontSize = Math.max(10 / globalScale, 3);
+          ctx.font = `${fontSize}px Sans-Serif`;
+          ctx.fillStyle = GraphTheme.nodes.textColor;
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(label, node.x + r + (GraphTheme.nodes.textOffset / globalScale), node.y);
+        })
+        .nodePointerAreaPaint((node, color, ctx) => {
+          ctx.beginPath();
+          ctx.arc(node.x, node.y, GraphTheme.nodes.radius + 4, 0, 2 * Math.PI);
+          ctx.fillStyle = color;
+          ctx.fill();
+        })
+
+        // Hover
+        .onNodeHover(node => {
+          hoveredNode = node || null;
+          if (node) {
+            tooltip.style.display = 'block';
+            tooltip.textContent = `${node.name || node.id}${node.group ? ' · ' + node.group : ''}`;
+          } else {
+            tooltip.style.display = 'none';
+          }
+        })
+
+        // Drag
+        .onNodeDragEnd(node => {
+          node.fx = node.x;
+          node.fy = node.y;
+        });
+
+      // Warm-up then cool down physics
+      graph.d3Force('charge').strength(-120);
+      graph.d3Force('link').distance(80);
+    }
+
+    document.addEventListener('mousemove', e => {
+      if (tooltip.style.display === 'block') {
+        tooltip.style.left = (e.clientX + 14) + 'px';
+        tooltip.style.top  = (e.clientY - 10) + 'px';
+      }
+    });
+
+    function loadGraph() {
+      fetch('graph_data.json?t=' + new Date().getTime())
+        .then(r => {
+          if (!r.ok) throw new Error('Failed to load graph_data.json');
+          return r.json();
+        })
+        .then(data => initGraph(data))
+        .catch(err => console.error('Graph load error:', err));
+    }
+
+    document.getElementById('refreshBtn').addEventListener('click', loadGraph);
+
+    loadGraph();
+  </script>
+</body>
+</html>
