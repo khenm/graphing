@@ -270,7 +270,7 @@
         })
         .then(data => {
           // Pack nodes on a small circle so they start close together
-          const initR = 8;
+          const initR = 1;
           data.nodes.forEach((n, i) => {
             const angle = (i / data.nodes.length) * 2 * Math.PI;
             n.x = Math.cos(angle) * initR;
