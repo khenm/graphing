@@ -29,9 +29,10 @@ HEADERS = {
 }
 
 # ── Property names in your Notion database ────────────────────────────────────
-PROP_NAME         = "Name"           # Title property
-PROP_TAG          = "Tags"           # Select / Multi-select
-PROP_PREREQUISITES = "Prerequisites" # Relation property
+PROP_NAME          = "Name"           # Title property
+PROP_STATUS        = "Status"         # Select  → node fill color
+PROP_TAG           = "Tags"           # Select / Multi-select → edge color
+PROP_PREREQUISITES = "Prerequisites"  # Relation property
 # ─────────────────────────────────────────────────────────────────────────────
 
 
@@ -163,7 +164,11 @@ def build_graph(pages: list[dict]) -> dict:
         tag_prop = props.get(PROP_TAG, {})
         group = extract_tag(tag_prop)
 
-        nodes.append({"id": page_id, "name": name, "group": group})
+        # Node status (for fill color)
+        status_prop = props.get(PROP_STATUS, {})
+        status = extract_tag(status_prop).lower()
+
+        nodes.append({"id": page_id, "name": name, "status": status, "tag": group})
 
         # Source 1: Prerequisites relation property
         prereq_prop = props.get(PROP_PREREQUISITES, {})
