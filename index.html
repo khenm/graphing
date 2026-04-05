@@ -207,8 +207,9 @@
             ctx.fillText('★', node.x, node.y);
           }
 
-          // Label
-          const label = node.name || node.id;
+          // Label — truncate to 10 chars
+          const full  = node.name || node.id;
+          const label = full.length > 10 ? full.slice(0, 10) + '…' : full;
           const fontSize = Math.max(10 / globalScale, 3);
           ctx.font = `${fontSize}px Sans-Serif`;
           ctx.fillStyle = GraphTheme.nodes.textColor;
@@ -270,7 +271,15 @@
           if (!r.ok) throw new Error('Failed to load graph_data.json');
           return r.json();
         })
-        .then(data => initGraph(data))
+        .then(data => {
+          // Seed every node near the canvas centre so the simulation
+          // starts from a tight cluster and expands outward
+          data.nodes.forEach(n => {
+            n.x = (Math.random() - 0.5) * 40;
+            n.y = (Math.random() - 0.5) * 40;
+          });
+          initGraph(data);
+        })
         .catch(err => console.error('Graph load error:', err));
     }
 
