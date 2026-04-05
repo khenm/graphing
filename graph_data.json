@@ -1,11 +1,13 @@
 {
   "nodes": [
-    {"id": "placeholder-1", "name": "Example Node A", "group": "Linear Algebra"},
-    {"id": "placeholder-2", "name": "Example Node B", "group": "Optimization"},
-    {"id": "placeholder-3", "name": "Example Node C", "group": "Information Theory"}
+    {"id": "placeholder-1", "name": "Example Node A", "status": "learning",     "tag": "Linear Algebra"},
+    {"id": "placeholder-2", "name": "Example Node B", "status": "mastered",     "tag": "Optimization"},
+    {"id": "placeholder-3", "name": "Example Node C", "status": "not started",  "tag": "Information Theory"},
+    {"id": "placeholder-4", "name": "Example Node D", "status": "reviewed",     "tag": "Practice"}
   ],
   "links": [
     {"source": "placeholder-1", "target": "placeholder-2"},
-    {"source": "placeholder-2", "target": "placeholder-3"}
+    {"source": "placeholder-2", "target": "placeholder-3"},
+    {"source": "placeholder-3", "target": "placeholder-4"}
   ]
 }

@@ -82,15 +82,17 @@
 
     function nodeId(n) { return n != null && n.id != null ? n.id : n; }
 
+    // Edge color keyed by the source node's Tag property
     function linkTagColor(link) {
       const src = link.source;
-      const tag = (src && src.group) ? src.group : '';
+      const tag = (src && src.tag) ? src.tag : '';
       return GraphTheme.nodes.tagColors[tag] || GraphTheme.links.hoverColor;
     }
 
+    // Node fill color keyed by the node's Status property
     function nodeColor(node) {
-      const tag = node.group || '';
-      return GraphTheme.nodes.tagColors[tag] || GraphTheme.nodes.defaultColor;
+      const status = (node.status || '').toLowerCase();
+      return GraphTheme.nodes.statusColors[status] || GraphTheme.nodes.defaultColor;
     }
 
     function updateSearch(query) {
@@ -196,6 +198,15 @@
             ctx.stroke();
           }
 
+          // Star symbol for mastered nodes
+          if ((node.status || '').toLowerCase() === 'mastered') {
+            ctx.font = `bold ${r * 1.3}px Sans-Serif`;
+            ctx.fillStyle = GraphTheme.nodes.masteredStarColor;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('★', node.x, node.y);
+          }
+
           // Label
           const label = node.name || node.id;
           const fontSize = Math.max(10 / globalScale, 3);
@@ -232,22 +243,25 @@
           });
         })
 
-        // Drop — pin dragged node; release others back into gentle physics
+        // Re-pin dragged node at its final position
         .onNodeDragEnd(node => {
           node.fx = node.x;
           node.fy = node.y;
-          graph.graphData().nodes.forEach(n => {
-            if (n !== node) { n.fx = undefined; n.fy = undefined; }
-          });
         })
 
-        // Keep simulation alive at a very low energy — gives the "weak magnet" feel
-        .d3AlphaDecay(0.015)       // slow initial cool-down
-        .d3VelocityDecay(0.55)     // heavy damping — nodes barely drift
-        .d3AlphaTarget(0.03);      // never fully stop; sustains gentle idle motion
+        // Settle slowly and springily — gives the "weak magnet" feel on load
+        // d3AlphaDecay(0.008): simulation runs ~750 frames (~12s) before stopping
+        // d3VelocityDecay(0.25): low damping so nodes bounce and push like magnets
+        .d3AlphaDecay(0.008)
+        .d3VelocityDecay(0.25);
 
-      graph.d3Force('charge').strength(-80);   // weak repulsion
+      graph.d3Force('charge').strength(-80);
       graph.d3Force('link').distance(80);
+
+      // Pin all nodes once the layout fully settles
+      graph.onEngineStop(() => {
+        graph.graphData().nodes.forEach(n => { n.fx = n.x; n.fy = n.y; });
+      });
     }
 
     function loadGraph() {

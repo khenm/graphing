@@ -4,15 +4,22 @@ const GraphTheme = {
     },
     nodes: {
         defaultColor: "#94a3b8",
+        // Node fill color keyed by Status property (lowercase)
+        statusColors: {
+            "learning":     "#bfdbfe",  // pastel blue
+            "reviewed":     "#bbf7d0",  // pastel green
+            "not started":  "#fecaca",  // pastel red
+            "mastered":     "#fef08a"   // pastel yellow
+        },
+        masteredStarColor: "#92400e", 
         tagColors: {
-            "Linear Algebra":       "#60a5fa",   // blue-400
-            "Information Theory":   "#a78bfa",   // violet-400
-            "Optimization":         "#f472b6",   // pink-400
-            "Practice":             "#34d399"    // emerald-400
+            "Linear Algebra":       "#60a5fa",
+            "Information Theory":   "#a78bfa",
+            "Optimization":         "#f472b6",
+            "Practice":             "#34d399"
         },
         radius: 8,
         textColor: "#1e293b",
-        textFont: "5px Sans-Serif",
         textOffset: 10,
         hoverOutline: "#475569",
         hoverOutlineWidth: 2
