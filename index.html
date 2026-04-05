@@ -71,6 +71,7 @@
   <button id="refreshBtn">Refresh Graph</button>
 
   <script src="theme.js"></script>
+  <script src="https://unpkg.com/d3-force@3/dist/d3-force.min.js"></script>
   <script src="https://unpkg.com/force-graph@1.49.0/dist/force-graph.min.js"></script>
   <script>
     let graph = null;
@@ -253,8 +254,12 @@
         .d3AlphaDecay(0.008)
         .d3VelocityDecay(0.2);
 
-      graph.d3Force('charge').strength(-2);
-      graph.d3Force('link').distance(-2);
+      graph.d3Force('charge').strength(-1);
+      graph.d3Force('link', null); // disable link spring — only charge repulsion acts
+
+      // Collision: nodes push each other once their (radius + 0.5) boundaries touch
+      const collideR = GraphTheme.nodes.radius + 0.5;
+      graph.d3Force('collide', d3.forceCollide(collideR).strength(1));
 
       // Pin all nodes once the layout fully settles
       graph.onEngineStop(() => {
@@ -269,12 +274,12 @@
           return r.json();
         })
         .then(data => {
-          // Pack nodes on a small circle so they start close together
-          const initR = 1;
+          // Place nodes in a grid so every node starts at equal spacing
+          const cols    = Math.ceil(Math.sqrt(data.nodes.length));
+          const spacing = 1;
           data.nodes.forEach((n, i) => {
-            const angle = (i / data.nodes.length) * 2 * Math.PI;
-            n.x = Math.cos(angle) * initR;
-            n.y = Math.sin(angle) * initR;
+            n.x = (i % cols - cols / 2) * spacing;
+            n.y = (Math.floor(i / cols) - cols / 2) * spacing;
           });
           initGraph(data);
         })
