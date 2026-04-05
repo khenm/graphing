@@ -11,7 +11,7 @@
       width: 100vw;
       height: 100vh;
       overflow: hidden;
-      background: #f8f9fa;
+      background: #f0f2f5;
     }
 
     #graph {
@@ -63,33 +63,16 @@
     }
 
     #searchBar::placeholder { color: #94a3b8; }
-
-    #tooltip {
-      position: fixed;
-      pointer-events: none;
-      background: rgba(255,255,255,0.92);
-      border: 1px solid #cbd5e1;
-      border-radius: 6px;
-      padding: 6px 10px;
-      font-size: 12px;
-      font-family: sans-serif;
-      color: #374151;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.10);
-      display: none;
-      max-width: 200px;
-    }
   </style>
 </head>
 <body>
   <div id="graph"></div>
   <input id="searchBar" type="text" placeholder="Search nodes…" autocomplete="off" spellcheck="false" />
   <button id="refreshBtn">Refresh Graph</button>
-  <div id="tooltip"></div>
 
   <script src="theme.js"></script>
   <script src="https://unpkg.com/force-graph@1.49.0/dist/force-graph.min.js"></script>
   <script>
-    const tooltip = document.getElementById('tooltip');
     let graph = null;
     let hoveredNode = null;
     let hoveredLink = null;
@@ -237,46 +220,35 @@
           if (node) {
             const { nodes, links } = graph.graphData();
             componentNodes = getConnectedComponent(node, nodes, links);
-            tooltip.style.display = 'block';
-            tooltip.textContent = `${node.name || node.id}${node.group ? ' · ' + node.group : ''}`;
           } else {
             componentNodes = new Set();
-            tooltip.style.display = 'none';
           }
         })
 
-        // Drag — keep every OTHER node pinned each frame so physics can't push them
+        // Drag — pin others each frame so they don't get pushed
         .onNodeDrag(node => {
           graph.graphData().nodes.forEach(n => {
             if (n !== node) { n.fx = n.x; n.fy = n.y; }
           });
         })
 
-        // Re-pin dragged node at its final position
+        // Drop — pin dragged node; release others back into gentle physics
         .onNodeDragEnd(node => {
           node.fx = node.x;
           node.fy = node.y;
+          graph.graphData().nodes.forEach(n => {
+            if (n !== node) { n.fx = undefined; n.fy = undefined; }
+          });
         })
 
-        // Pin every node once the simulation cools — prevents physics from
-        // moving non-dragged nodes when you drag one around
-        .onEngineStop(() => {
-          graph.graphData().nodes.forEach(n => {
-            n.fx = n.x;
-            n.fy = n.y;
-          });
-        });
+        // Keep simulation alive at a very low energy — gives the "weak magnet" feel
+        .d3AlphaDecay(0.015)       // slow initial cool-down
+        .d3VelocityDecay(0.55)     // heavy damping — nodes barely drift
+        .d3AlphaTarget(0.03);      // never fully stop; sustains gentle idle motion
 
-      graph.d3Force('charge').strength(-120);
+      graph.d3Force('charge').strength(-80);   // weak repulsion
       graph.d3Force('link').distance(80);
     }
-
-    document.addEventListener('mousemove', e => {
-      if (tooltip.style.display === 'block') {
-        tooltip.style.left = (e.clientX + 14) + 'px';
-        tooltip.style.top  = (e.clientY - 10) + 'px';
-      }
-    });
 
     function loadGraph() {
       fetch('graph_data.json?t=' + Date.now())

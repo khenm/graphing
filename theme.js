@@ -1,25 +1,25 @@
 const GraphTheme = {
     canvas: {
-        background: "#f8f9fa",
+        background: "#f0f2f5",
     },
     nodes: {
-        defaultColor: "#e2e8f0",
+        defaultColor: "#94a3b8",
         tagColors: {
-            "Linear Algebra":       "#a8d8ea",
-            "Information Theory":   "#aa96da",
-            "Optimization":         "#fcbad3",
-            "Practice":             "#b5ead7"
+            "Linear Algebra":       "#60a5fa",   // blue-400
+            "Information Theory":   "#a78bfa",   // violet-400
+            "Optimization":         "#f472b6",   // pink-400
+            "Practice":             "#34d399"    // emerald-400
         },
         radius: 8,
-        textColor: "#374151",
+        textColor: "#1e293b",
         textFont: "5px Sans-Serif",
         textOffset: 10,
-        hoverOutline: "#64748b",
+        hoverOutline: "#475569",
         hoverOutlineWidth: 2
     },
     links: {
-        color: "#cbd5e1",
-        hoverColor: "#94a3b8",
+        color: "#94a3b8",
+        hoverColor: "#475569",
         arrowLength: 6,
         width: 1.5
     },
