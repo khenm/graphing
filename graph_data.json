@@ -1,11 +1,190 @@
 {
   "nodes": [
-    {"id": "placeholder-1", "name": "Example Node A", "group": "Linear Algebra"},
-    {"id": "placeholder-2", "name": "Example Node B", "group": "Optimization"},
-    {"id": "placeholder-3", "name": "Example Node C", "group": "Information Theory"}
+    {
+      "id": "33191721-e8c7-8016-8846-da32dafdfea0",
+      "name": "Gradient Descent",
+      "group": ""
+    },
+    {
+      "id": "33191721-e8c7-801c-bd67-cae6daaa6feb",
+      "name": "KL divergence; Jessen-Shannon; Cross Entropy Loss",
+      "group": ""
+    },
+    {
+      "id": "33191721-e8c7-801d-ba38-ed7561d4e274",
+      "name": "Markov Chains and Decision Process",
+      "group": ""
+    },
+    {
+      "id": "33191721-e8c7-8027-a989-eb0e78116a67",
+      "name": "ODEs",
+      "group": ""
+    },
+    {
+      "id": "33191721-e8c7-802b-81b2-fd97afa4fa52",
+      "name": "Positive Definite Matrices and Quadratic Forms",
+      "group": ""
+    },
+    {
+      "id": "33191721-e8c7-802d-860f-e7d281eccd8d",
+      "name": "Backpropagation from scratch",
+      "group": ""
+    },
+    {
+      "id": "33191721-e8c7-8046-ab65-c181fc42f5d9",
+      "name": "Euler-Lagrange",
+      "group": ""
+    },
+    {
+      "id": "33191721-e8c7-8048-9303-f482a954b6ea",
+      "name": "Chain Rule",
+      "group": ""
+    },
+    {
+      "id": "33191721-e8c7-804d-9bd1-e4885a6def9a",
+      "name": "Multivariate Calculus: Gradients, Jacobians, Hessians",
+      "group": ""
+    },
+    {
+      "id": "33191721-e8c7-8058-8128-dce9b8e0f8e9",
+      "name": "Distributions",
+      "group": ""
+    },
+    {
+      "id": "33191721-e8c7-8078-8b28-f4ab23479355",
+      "name": "Nonlinear Dynamics",
+      "group": ""
+    },
+    {
+      "id": "33191721-e8c7-807a-bef3-fb78f5267d49",
+      "name": "Einstein Notations and Multilinear Maps",
+      "group": ""
+    },
+    {
+      "id": "33191721-e8c7-807b-9d70-eff14e015ecf",
+      "name": "Probability Spaces, Conditional Probability, Bayes’ theorem",
+      "group": ""
+    },
+    {
+      "id": "33191721-e8c7-807c-b46c-d2dfac0547b7",
+      "name": "Shannon Entropy",
+      "group": ""
+    },
+    {
+      "id": "33191721-e8c7-8082-ac9c-ddf64812d2ca",
+      "name": "Stochastic Differential Equations",
+      "group": ""
+    },
+    {
+      "id": "33191721-e8c7-808a-9fba-e7c45551aa13",
+      "name": "Convex Theory",
+      "group": ""
+    },
+    {
+      "id": "33191721-e8c7-809e-9997-fe70b5e084aa",
+      "name": "Lagrange Multipliers and Constrained Optimization",
+      "group": ""
+    },
+    {
+      "id": "33191721-e8c7-80c3-aa49-dc500d1520cb",
+      "name": "Mutual Information",
+      "group": ""
+    },
+    {
+      "id": "33191721-e8c7-80c8-a8d3-fc897cc146c4",
+      "name": "Eigenvalues, Eigenvectors, Decomposition",
+      "group": ""
+    },
+    {
+      "id": "33191721-e8c7-80d0-873e-e87282cd414b",
+      "name": "Linear Systems of ODEs",
+      "group": ""
+    },
+    {
+      "id": "33191721-e8c7-80d3-970c-fab8ea95c94a",
+      "name": "Simulate Chaotic System: Water",
+      "group": ""
+    },
+    {
+      "id": "33191721-e8c7-80d3-a48d-eac81538802d",
+      "name": "Singular Value Decomposition",
+      "group": ""
+    },
+    {
+      "id": "33191721-e8c7-80d9-9617-c004dbc4ace7",
+      "name": "Naive Bayes Classifier",
+      "group": ""
+    },
+    {
+      "id": "33191721-e8c7-80f2-9835-d58e6e6f16f0",
+      "name": "Principle Component Analysis",
+      "group": ""
+    },
+    {
+      "id": "33291721-e8c7-8063-be32-cc31066aa119",
+      "name": "Lyapunov Equation",
+      "group": ""
+    },
+    {
+      "id": "33291721-e8c7-80e1-8665-f9f0be6609df",
+      "name": "Knutt-Morris-Pratt Algorithm",
+      "group": ""
+    },
+    {
+      "id": "33591721-e8c7-8061-a888-e05e516960f2",
+      "name": "HHL Algorithm",
+      "group": ""
+    },
+    {
+      "id": "33591721-e8c7-80f2-8f4f-fdf6563b3701",
+      "name": "Low-Rank Approximation and LoRa",
+      "group": ""
+    },
+    {
+      "id": "33791721-e8c7-8009-b949-e80093ab1ec3",
+      "name": "Secular Equations and Newton-Raphson Method",
+      "group": ""
+    },
+    {
+      "id": "33791721-e8c7-801b-a2a3-f7ab90b976b8",
+      "name": "Householder Biagonalization",
+      "group": ""
+    },
+    {
+      "id": "33791721-e8c7-8086-a1e9-c4fbec6db4bf",
+      "name": "Sparse Attention",
+      "group": ""
+    },
+    {
+      "id": "33791721-e8c7-80a6-9194-fde130e5e84b",
+      "name": "Taylor’s Approximation and Gilbert Strang’s insights on Designing Loss Functions",
+      "group": ""
+    }
   ],
   "links": [
-    {"source": "placeholder-1", "target": "placeholder-2"},
-    {"source": "placeholder-2", "target": "placeholder-3"}
+    {
+      "source": "33191721-e8c7-807a-bef3-fb78f5267d49",
+      "target": "33191721-e8c7-807a-bef3-fb78f5267d49"
+    },
+    {
+      "source": "33191721-e8c7-80c8-a8d3-fc897cc146c4",
+      "target": "33191721-e8c7-80c8-a8d3-fc897cc146c4"
+    },
+    {
+      "source": "33291721-e8c7-8063-be32-cc31066aa119",
+      "target": "33191721-e8c7-80c8-a8d3-fc897cc146c4"
+    },
+    {
+      "source": "33791721-e8c7-801b-a2a3-f7ab90b976b8",
+      "target": "33191721-e8c7-80d3-a48d-eac81538802d"
+    },
+    {
+      "source": "33791721-e8c7-8009-b949-e80093ab1ec3",
+      "target": "33191721-e8c7-80d3-a48d-eac81538802d"
+    },
+    {
+      "source": "33191721-e8c7-80f2-9835-d58e6e6f16f0",
+      "target": "33191721-e8c7-80f2-9835-d58e6e6f16f0"
+    }
   ]
 }
