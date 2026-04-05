@@ -250,11 +250,11 @@
           node.fy = node.y;
         })
 
-        .d3AlphaDecay(0.004)   // very slow cool-down (~1500 frames, ~25s)
-        .d3VelocityDecay(0.08); // minimal damping — nodes overshoot and bounce like magnets
+        .d3AlphaDecay(0.008)
+        .d3VelocityDecay(0.2);
 
-      graph.d3Force('charge').strength(-220); // strong repulsion
-      graph.d3Force('link').distance(30);     // short spring — linked nodes snap together
+      graph.d3Force('charge').strength(-120);
+      graph.d3Force('link').distance(50);
 
       // Pin all nodes once the layout fully settles
       graph.onEngineStop(() => {
@@ -269,12 +269,12 @@
           return r.json();
         })
         .then(data => {
-          // Pack every node onto a tiny circle (r=1) so the simulation
-          // always explodes outward from a dense central cluster
+          // Pack nodes on a small circle so they start close together
+          const initR = 60;
           data.nodes.forEach((n, i) => {
             const angle = (i / data.nodes.length) * 2 * Math.PI;
-            n.x = Math.cos(angle);
-            n.y = Math.sin(angle);
+            n.x = Math.cos(angle) * initR;
+            n.y = Math.sin(angle) * initR;
           });
           initGraph(data);
         })
