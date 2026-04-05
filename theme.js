@@ -18,7 +18,7 @@ const GraphTheme = {
             "Optimization":         "#f472b6",
             "Practice":             "#34d399"
         },
-        radius: 8,
+        radius: 10,
         textColor: "#1e293b",
         textOffset: 10,
         hoverOutline: "#475569",
