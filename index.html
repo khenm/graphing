@@ -38,6 +38,32 @@
 
     #refreshBtn:hover { background: #cbd5e1; }
 
+    #searchBar {
+      position: fixed;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      width: 260px;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-family: sans-serif;
+      border-radius: 20px;
+      border: 1px solid #94a3b8;
+      background: rgba(255,255,255,0.92);
+      color: #374151;
+      outline: none;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    #searchBar:focus {
+      border-color: #64748b;
+      box-shadow: 0 1px 8px rgba(100,116,139,0.18);
+    }
+
+    #searchBar::placeholder { color: #94a3b8; }
+
     #tooltip {
       position: fixed;
       pointer-events: none;
@@ -56,6 +82,7 @@
 </head>
 <body>
   <div id="graph"></div>
+  <input id="searchBar" type="text" placeholder="Search nodes…" autocomplete="off" spellcheck="false" />
   <button id="refreshBtn">Refresh Graph</button>
   <div id="tooltip"></div>
 
@@ -66,9 +93,13 @@
     let graph = null;
     let hoveredNode = null;
     let hoveredLink = null;
+    let componentNodes = new Set(); // IDs of nodes in the hovered connected component
+    let searchQuery = '';
+    let matchedNodes = new Set(); // IDs of nodes matching the current search query
+
+    function nodeId(n) { return n != null && n.id != null ? n.id : n; }
 
     function linkTagColor(link) {
-      // Use the source node's tag color; fall back to default link color
       const src = link.source;
       const tag = (src && src.group) ? src.group : '';
       return GraphTheme.nodes.tagColors[tag] || GraphTheme.links.hoverColor;
@@ -79,6 +110,36 @@
       return GraphTheme.nodes.tagColors[tag] || GraphTheme.nodes.defaultColor;
     }
 
+    function updateSearch(query) {
+      searchQuery = query.trim().toLowerCase();
+      if (!searchQuery || !graph) { matchedNodes = new Set(); return; }
+      const { nodes } = graph.graphData();
+      matchedNodes = new Set(
+        nodes
+          .filter(n => (n.name || n.id).toLowerCase().includes(searchQuery))
+          .map(n => n.id)
+      );
+    }
+
+    // BFS on the undirected graph to find every node reachable from startNode
+    function getConnectedComponent(startNode, nodes, links) {
+      const adj = new Map(nodes.map(n => [n.id, []]));
+      links.forEach(l => {
+        const s = nodeId(l.source), t = nodeId(l.target);
+        if (adj.has(s)) adj.get(s).push(t);
+        if (adj.has(t)) adj.get(t).push(s);
+      });
+      const visited = new Set();
+      const queue = [startNode.id];
+      while (queue.length) {
+        const id = queue.shift();
+        if (visited.has(id)) continue;
+        visited.add(id);
+        (adj.get(id) || []).forEach(nb => { if (!visited.has(nb)) queue.push(nb); });
+      }
+      return visited;
+    }
+
     function initGraph(data) {
       if (graph) graph._destructor();
 
@@ -87,17 +148,58 @@
         .graphData(data)
 
         // Links
-        .linkColor(link => link === hoveredLink ? linkTagColor(link) : GraphTheme.links.color)
-        .linkWidth(link => link === hoveredLink ? GraphTheme.links.width * 2 : GraphTheme.links.width)
+        .linkColor(link => {
+          if (hoveredNode) {
+            const s = nodeId(link.source), t = nodeId(link.target);
+            return (componentNodes.has(s) && componentNodes.has(t))
+              ? linkTagColor(link)
+              : 'rgba(203,213,225,0.12)';
+          }
+          return link === hoveredLink ? linkTagColor(link) : GraphTheme.links.color;
+        })
+        .linkWidth(link => {
+          if (hoveredNode) {
+            const s = nodeId(link.source), t = nodeId(link.target);
+            return (componentNodes.has(s) && componentNodes.has(t))
+              ? GraphTheme.links.width * 2
+              : GraphTheme.links.width * 0.4;
+          }
+          return link === hoveredLink ? GraphTheme.links.width * 2 : GraphTheme.links.width;
+        })
         .linkDirectionalArrowLength(GraphTheme.links.arrowLength)
         .linkDirectionalArrowRelPos(1)
-        .linkDirectionalArrowColor(link => link === hoveredLink ? linkTagColor(link) : GraphTheme.links.color)
+        .linkDirectionalArrowColor(link => {
+          if (hoveredNode) {
+            const s = nodeId(link.source), t = nodeId(link.target);
+            return (componentNodes.has(s) && componentNodes.has(t))
+              ? linkTagColor(link)
+              : 'rgba(203,213,225,0.12)';
+          }
+          return link === hoveredLink ? linkTagColor(link) : GraphTheme.links.color;
+        })
         .onLinkHover(link => { hoveredLink = link || null; })
 
         // Node canvas drawing
         .nodeCanvasObject((node, ctx, globalScale) => {
           const r = GraphTheme.nodes.radius;
           const isHovered = node === hoveredNode;
+          const inComponent = !hoveredNode || componentNodes.has(node.id);
+          const isMatched = searchQuery ? matchedNodes.has(node.id) : true;
+
+          ctx.save();
+          // Search dims unmatched; hover dims out-of-component — search takes priority
+          ctx.globalAlpha = searchQuery
+            ? (isMatched ? 1 : 0.12)
+            : (inComponent ? 1 : 0.15);
+
+          // Search highlight ring (drawn behind the node fill)
+          if (searchQuery && isMatched) {
+            ctx.beginPath();
+            ctx.arc(node.x, node.y, r + 3 / globalScale, 0, 2 * Math.PI);
+            ctx.strokeStyle = nodeColor(node);
+            ctx.lineWidth = 2.5 / globalScale;
+            ctx.stroke();
+          }
 
           // Node circle
           ctx.beginPath();
@@ -119,6 +221,8 @@
           ctx.textAlign = 'left';
           ctx.textBaseline = 'middle';
           ctx.fillText(label, node.x + r + (GraphTheme.nodes.textOffset / globalScale), node.y);
+
+          ctx.restore();
         })
         .nodePointerAreaPaint((node, color, ctx) => {
           ctx.beginPath();
@@ -127,18 +231,28 @@
           ctx.fill();
         })
 
-        // Hover
+        // Hover — compute connected component for highlighting
         .onNodeHover(node => {
           hoveredNode = node || null;
           if (node) {
+            const { nodes, links } = graph.graphData();
+            componentNodes = getConnectedComponent(node, nodes, links);
             tooltip.style.display = 'block';
             tooltip.textContent = `${node.name || node.id}${node.group ? ' · ' + node.group : ''}`;
           } else {
+            componentNodes = new Set();
             tooltip.style.display = 'none';
           }
         })
 
-        // Drag — re-pin node at its new position
+        // Drag — keep every OTHER node pinned each frame so physics can't push them
+        .onNodeDrag(node => {
+          graph.graphData().nodes.forEach(n => {
+            if (n !== node) { n.fx = n.x; n.fy = n.y; }
+          });
+        })
+
+        // Re-pin dragged node at its final position
         .onNodeDragEnd(node => {
           node.fx = node.x;
           node.fy = node.y;
@@ -174,7 +288,15 @@
         .catch(err => console.error('Graph load error:', err));
     }
 
-    document.getElementById('refreshBtn').addEventListener('click', loadGraph);
+    document.getElementById('searchBar').addEventListener('input', e => {
+      updateSearch(e.target.value);
+    });
+
+    document.getElementById('refreshBtn').addEventListener('click', () => {
+      document.getElementById('searchBar').value = '';
+      updateSearch('');
+      loadGraph();
+    });
 
     loadGraph();
   </script>
