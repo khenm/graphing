@@ -10,7 +10,7 @@ const GraphTheme = {
             "Optimization":         "#fcbad3",
             "Practice":             "#b5ead7"
         },
-        radius: 6,
+        radius: 8,
         textColor: "#374151",
         textFont: "5px Sans-Serif",
         textOffset: 10,
