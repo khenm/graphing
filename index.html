@@ -65,6 +65,14 @@
     const tooltip = document.getElementById('tooltip');
     let graph = null;
     let hoveredNode = null;
+    let hoveredLink = null;
+
+    function linkTagColor(link) {
+      // Use the source node's tag color; fall back to default link color
+      const src = link.source;
+      const tag = (src && src.group) ? src.group : '';
+      return GraphTheme.nodes.tagColors[tag] || GraphTheme.links.hoverColor;
+    }
 
     function nodeColor(node) {
       const tag = node.group || '';
@@ -79,11 +87,12 @@
         .graphData(data)
 
         // Links
-        .linkColor(() => GraphTheme.links.color)
-        .linkWidth(GraphTheme.links.width)
+        .linkColor(link => link === hoveredLink ? linkTagColor(link) : GraphTheme.links.color)
+        .linkWidth(link => link === hoveredLink ? GraphTheme.links.width * 2 : GraphTheme.links.width)
         .linkDirectionalArrowLength(GraphTheme.links.arrowLength)
         .linkDirectionalArrowRelPos(1)
-        .linkDirectionalArrowColor(() => GraphTheme.links.color)
+        .linkDirectionalArrowColor(link => link === hoveredLink ? linkTagColor(link) : GraphTheme.links.color)
+        .onLinkHover(link => { hoveredLink = link || null; })
 
         // Node canvas drawing
         .nodeCanvasObject((node, ctx, globalScale) => {
@@ -129,13 +138,21 @@
           }
         })
 
-        // Drag
+        // Drag — re-pin node at its new position
         .onNodeDragEnd(node => {
           node.fx = node.x;
           node.fy = node.y;
+        })
+
+        // Pin every node once the simulation cools — prevents physics from
+        // moving non-dragged nodes when you drag one around
+        .onEngineStop(() => {
+          graph.graphData().nodes.forEach(n => {
+            n.fx = n.x;
+            n.fy = n.y;
+          });
         });
 
-      // Warm-up then cool down physics
       graph.d3Force('charge').strength(-120);
       graph.d3Force('link').distance(80);
     }
@@ -148,7 +165,7 @@
     });
 
     function loadGraph() {
-      fetch('graph_data.json?t=' + new Date().getTime())
+      fetch('graph_data.json?t=' + Date.now())
         .then(r => {
           if (!r.ok) throw new Error('Failed to load graph_data.json');
           return r.json();
