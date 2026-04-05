@@ -253,8 +253,8 @@
         .d3AlphaDecay(0.008)
         .d3VelocityDecay(0.2);
 
-      graph.d3Force('charge').strength(-10);
-      graph.d3Force('link').distance(10);
+      graph.d3Force('charge').strength(-2);
+      graph.d3Force('link').distance(-2);
 
       // Pin all nodes once the layout fully settles
       graph.onEngineStop(() => {
