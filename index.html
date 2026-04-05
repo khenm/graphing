@@ -259,7 +259,7 @@
 
       // Collision: nodes push each other once their (radius + 0.5) boundaries touch
       const collideR = GraphTheme.nodes.radius + 0.5;
-      graph.d3Force('collide', d3.forceCollide(collideR).strength(1));
+      graph.d3Force('collide', d3.forceCollide(collideR).strength(0.15));
 
       // Pin all nodes once the layout fully settles
       graph.onEngineStop(() => {
